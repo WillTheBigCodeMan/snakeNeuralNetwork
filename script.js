@@ -19,6 +19,7 @@ class node {
 
 class neuralNetwork {
     constructor(_layers, _weightsRange, _biasRange) {
+        this.ins = _layers[0];
         this.nodes = [];
         for (let i = 1; i < _layers.length; i++) {
             this.nodes.push([]);
@@ -52,6 +53,7 @@ class neuralNetwork {
 }
 
 const canvas = document.getElementById("game").getContext("2d");
+let nCanvas = document.getElementById("neuralNetwork").getContext("2d");
 
 canvas.fillStyle = "black";
 canvas.fillRect(0, 0, 400, 400);
@@ -65,6 +67,8 @@ let wS = 400 / w;
 let hS = 400 / h;
 
 let snakeAi = new neuralNetwork([8, 16, 16, 4], [-3, 3], [-10, 10]);
+
+dispNeuralNetwork(snakeAi,nCanvas);
 
 let snake = [{
     x: w / 2,
@@ -177,7 +181,7 @@ function reset() {
 }
 
 function update() {
-    canvas.fillStyle = "black";
+    canvas.fillStyle = "rgba(0,0,0,1)";
     canvas.fillRect(0, 0, 400, 400);
     if (aiPlay) {
         let xPObs = 0;
@@ -244,3 +248,41 @@ document.addEventListener('keydown', e => {
             break;
     }
 });
+
+function dispNeuralNetwork(NN,canv){
+    canv.fillStyle = "#EEEEEE";
+    canv.fillRect(0,0,600,250);
+    for(let i = 0; i < NN.ins; i ++){
+        canv.strokeStyle = "black"
+        canv.strokeRect(600 / (NN.nodes.length + 2), 250 / (NN.ins + 2) * (i + 1), 10, 10);
+    }
+    for(let i = 0; i < NN.nodes.length; i++){
+        for(let j = 0; j < NN.nodes[i].length; j++){
+            canv.strokeStyle = "black"
+            if(NN.nodes[i][j].bias > 0){
+                canv.fillStyle = "rgba(0,0,255," + (NN.nodes[i][j].bias/10).toString() + ")";
+            } else {
+                canv.fillStyle = "rgba(255,0,0," + (-1*NN.nodes[i][j].bias/10).toString() + ")";
+            }
+            canv.fillRect(600 / (NN.nodes.length + 2) * (i + 2), 250 / (NN.nodes[i].length + 2) * (j + 1), 10, 10);
+            canv.strokeRect(600 / (NN.nodes.length + 2) * (i + 2), 250 / (NN.nodes[i].length + 2) * (j + 1), 10, 10);
+            for(let k = 0; k < NN.nodes[i][j].weights.length; k ++){
+                if(NN.nodes[i][j].weights[k] > 0){
+                    canv.strokeStyle = "rgba(0,0,255," + (NN.nodes[i][j].weights[k]/6).toString() + ")";
+                } else {
+                    console.log("rargh");
+                    canv.strokeStyle = "rgba(255,0,0," + (-1*NN.nodes[i][j].weights[k]/6).toString() + ")";
+                }
+                canv.moveTo(600 / (NN.nodes.length + 2) * (i + 2), 250 / (NN.nodes[i].length + 2) * (j + 1) + 5);
+                let lLength = 0;
+                if(i - 1 < 0){
+                    lLength = NN.ins;
+                } else {
+                    lLength = NN.nodes[i - 1].length;
+                }
+                canv.lineTo(600 / (NN.nodes.length + 2) * (i + 1) + 10, 250 / (lLength + 2) * (k + 1) + 5);
+                canv.stroke();
+            }
+        }
+    }
+}
