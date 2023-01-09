@@ -45,11 +45,26 @@ class neuralNetwork {
                 high = currentInputs[i];
             }
         }
-        return chosen;
+        return [chosen, currentInputs];
     }
-    train(inputs, expectedOutputs) {
+    train(inputs, expectedOutputs, chunkSize) {
+        let index = 0;
+        for(let i = 0; i < chunkSize; i ++){
+                
+        }
+    }
+}
 
+function cost(outputs, expected){
+    let total = 0;
+    for(let i = 0; i < outputs.length; i ++){
+        if(i == expected){
+            total += Math.pow(1-outputs[i], 2);    
+        } else {
+            total += Math.pow(0-outputs[i], 2);      
+        }
     }
+    return total;
 }
 
 const canvas = document.getElementById("game").getContext("2d");
@@ -203,7 +218,7 @@ function update() {
             }
         }
         let aiDescision = snakeAi.caclOut([snake[0].x - apple.x, snake[0].y - apple.y, dir[0], dir[1], xPObs, xNObs, yPObs, yNObs, ]);
-        switch (aiDescision) {
+        switch (aiDescision[0]) {
             case 0:
                 nextDir = [-1, 0];
                 break;
