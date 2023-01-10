@@ -47,24 +47,46 @@ class neuralNetwork {
         }
         return [chosen, currentInputs];
     }
-    train(inputs, expectedOutputs, chunkSize) {
+    train(inputs, expectedOutputs, chunkSize, cycles, rate) {
         let index = 0;
-        for(let i = 0; i < chunkSize; i ++){
-                
+        let vector
+        for(let k = 0; k < cycles; k ++){
+            for(let i = 0; i < chunkSize; i ++){
+                index++;
+                if(index >= inputs.length){
+                    index = 0;    
+                }
+                let c = cost(calcOut(inputs[index])[1], expectedOutputs[index]);
+                for(let j = 0; j < this.nodes[this.nodes.length - 1].length; j ++){
+                    let per = c[1][j] / c[0];
+                    let r = per * rate;
+                    let e = 0;
+                    if(j == expectedOutputs[index]){
+                        e = 1;
+                    }
+                    this.backpropogate(this.nodes[this.nodes.length - 1][i], e, r);
+                }
+            }
         }
+    }
+    backpropogate(node, expectedValue, rate){
+       
     }
 }
 
 function cost(outputs, expected){
     let total = 0;
+    let arr = [];
     for(let i = 0; i < outputs.length; i ++){
         if(i == expected){
-            total += Math.pow(1-outputs[i], 2);    
+            total += Math.pow(1-outputs[i], 2); 
+            arr.push(Math.pow(1-outputs[i], 2));
         } else {
-            total += Math.pow(0-outputs[i], 2);      
+            total += Math.pow(0-outputs[i], 2);   
+            arr.push((0-outputs[i], 2));
         }
     }
-    return total;
+    return total, arr;
 }
 
 const canvas = document.getElementById("game").getContext("2d");
