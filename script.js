@@ -49,41 +49,81 @@ class neuralNetwork {
     }
     train(inputs, expectedOutputs, chunkSize, cycles, rate) {
         let index = 0;
-        let vector
-        for(let k = 0; k < cycles; k ++){
-            for(let i = 0; i < chunkSize; i ++){
+        let vectors = [];
+        for (let k = 0; k < cycles; k++) {
+            for (let ii = 0; ii < chunkSize; ii++) {
                 index++;
-                if(index >= inputs.length){
-                    index = 0;    
+                if (index >= inputs.length) {
+                    index = 0;
                 }
-                let c = cost(calcOut(inputs[index])[1], expectedOutputs[index]);
-                for(let j = 0; j < this.nodes[this.nodes.length - 1].length; j ++){
-                    let per = c[1][j] / c[0];
-                    let r = per * rate;
-                    let e = 0;
-                    if(j == expectedOutputs[index]){
-                        e = 1;
+                let vector = [];
+                for (let i = 0; i < this.nodes.length; i++) {
+                    vector.push([]);
+                    vector.push([]);
+                    if (i < this.nodes.length - 1) {
+                        vector.push([]);
                     }
-                    this.backpropogate(this.nodes[this.nodes.length - 1][i], e, r);
+                    for (let j = 0; j < this.nodes[i].length; j++) {
+                        vector[3 * i].push([]);
+                        for (let k = 0; k < this.nodes[i][j].weights.length; k++) {
+                            vector[3 * i][j].push(0);
+                        }
+                        vector[3 * i + 1].push(0);
+                        if (i < this.nodes.length - 1) {
+                            vector[3 * i + 2].push(0);
+                        }
+                    }
                 }
+                let fullInformation = [inputs[index]];
+                for (let i = 0; i < this.nodes.length; i++) {
+                    fullInformation.push([]);
+                    fullInformation.push([]);
+                    fullInformation.push([]);
+                    for (let j = 0; j < this.nodes[i].length; j++) {
+                        fullInformation[3 * i + 1].push(this.nodes[i][j].weights);
+                        fullInformation[3 * i + 2].push(this.nodes[i][j].bias);
+                        fullInformation[3 * i + 3].push(this.nodes[i][j].calcOut(fullInformation[3 * i]));
+                    }
+                }
+                console.log(vector, fullInformation);
+                let c = cost(fullInformation[fullInformation.length - 1], expectedOutputs[ii]);
+                let tot = 0;
+                for (let i = 0; i < c[1].length; i++) {
+                    tot += c[1][i];
+                }
+                //For each output node backpropogate relative to its percent of cost
             }
         }
     }
-    backpropogate(node, expectedValue, rate){
-       
+    backpropogate(amount, fullInformation, x, y) {
+        let tot = 0;
+        for (let i = 0; i < fullInformation[3 * x + 1][y].length; i++) {
+            tot += fullInformation[3 * x + 1][y][i];
+            tot += fullInformation[3 * x][i];
+        }
+        tot++;
+        let vector = [
+            [],
+            [], (1 / tot) * fullInformation[3 * x + 2][y]
+        ];
+        for (let i = 0; i < fullInformation[3 * x + 1][y].length; i++) {
+            vector[0].push(fullInformation[3 * x + 1][y][i] / tot * amount);
+            vector[1].push(fullInformation[3 * x][i] / tot * amount);
+        }
+        return vector;
     }
 }
 
-function cost(outputs, expected){
+function cost(outputs, expected) {
     let total = 0;
     let arr = [];
-    for(let i = 0; i < outputs.length; i ++){
-        if(i == expected){
-            total += Math.pow(1-outputs[i], 2); 
-            arr.push(Math.pow(1-outputs[i], 2));
+    for (let i = 0; i < outputs.length; i++) {
+        if (i == expected) {
+            total += Math.pow(1 - outputs[i], 2);
+            arr.push(Math.pow(1 - outputs[i], 2));
         } else {
-            total += Math.pow(0-outputs[i], 2);   
-            arr.push((0-outputs[i], 2));
+            total += Math.pow(0 - outputs[i], 2);
+            arr.push((0 - outputs[i], 2));
         }
     }
     return total, arr;
@@ -104,8 +144,11 @@ let wS = 400 / w;
 let hS = 400 / h;
 
 let snakeAi = new neuralNetwork([8, 16, 16, 4], [-3, 3], [-10, 10]);
+snakeAi.train([
+    [1, 1, 1, 1, 1, 1, 1, 1]
+], [2], 1, 1, 5);
 
-dispNeuralNetwork(snakeAi,nCanvas);
+dispNeuralNetwork(snakeAi, nCanvas);
 
 let snake = [{
     x: w / 2,
@@ -286,33 +329,32 @@ document.addEventListener('keydown', e => {
     }
 });
 
-function dispNeuralNetwork(NN,canv){
+function dispNeuralNetwork(NN, canv) {
     canv.fillStyle = "#EEEEEE";
-    canv.fillRect(0,0,600,250);
-    for(let i = 0; i < NN.ins; i ++){
+    canv.fillRect(0, 0, 600, 250);
+    for (let i = 0; i < NN.ins; i++) {
         canv.strokeStyle = "black"
         canv.strokeRect(600 / (NN.nodes.length + 2), 250 / (NN.ins + 2) * (i + 1), 10, 10);
     }
-    for(let i = 0; i < NN.nodes.length; i++){
-        for(let j = 0; j < NN.nodes[i].length; j++){
+    for (let i = 0; i < NN.nodes.length; i++) {
+        for (let j = 0; j < NN.nodes[i].length; j++) {
             canv.strokeStyle = "black"
-            if(NN.nodes[i][j].bias > 0){
-                canv.fillStyle = "rgba(0,0,255," + (NN.nodes[i][j].bias/10).toString() + ")";
+            if (NN.nodes[i][j].bias > 0) {
+                canv.fillStyle = "rgba(0,0,255," + (NN.nodes[i][j].bias / 10).toString() + ")";
             } else {
-                canv.fillStyle = "rgba(255,0,0," + (-1*NN.nodes[i][j].bias/10).toString() + ")";
+                canv.fillStyle = "rgba(255,0,0," + (-1 * NN.nodes[i][j].bias / 10).toString() + ")";
             }
             canv.fillRect(600 / (NN.nodes.length + 2) * (i + 2), 250 / (NN.nodes[i].length + 2) * (j + 1), 10, 10);
             canv.strokeRect(600 / (NN.nodes.length + 2) * (i + 2), 250 / (NN.nodes[i].length + 2) * (j + 1), 10, 10);
-            for(let k = 0; k < NN.nodes[i][j].weights.length; k ++){
-                if(NN.nodes[i][j].weights[k] > 0){
-                    canv.strokeStyle = "rgba(0,0,255," + (NN.nodes[i][j].weights[k]/6).toString() + ")";
+            for (let k = 0; k < NN.nodes[i][j].weights.length; k++) {
+                if (NN.nodes[i][j].weights[k] > 0) {
+                    canv.strokeStyle = "rgba(0,0,255," + (NN.nodes[i][j].weights[k] / 6).toString() + ")";
                 } else {
-                    console.log("rargh");
-                    canv.strokeStyle = "rgba(255,0,0," + (-1*NN.nodes[i][j].weights[k]/6).toString() + ")";
+                    canv.strokeStyle = "rgba(255,0,0," + (-1 * NN.nodes[i][j].weights[k] / 6).toString() + ")";
                 }
                 canv.moveTo(600 / (NN.nodes.length + 2) * (i + 2), 250 / (NN.nodes[i].length + 2) * (j + 1) + 5);
                 let lLength = 0;
-                if(i - 1 < 0){
+                if (i - 1 < 0) {
                     lLength = NN.ins;
                 } else {
                     lLength = NN.nodes[i - 1].length;
