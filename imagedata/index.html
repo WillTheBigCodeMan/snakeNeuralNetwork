@@ -10,23 +10,53 @@
    <form>
     <div>
         <label>
-            <span>File:</span>
-            <input type="file" id="fileInput">
+            <span>0s:</span>
+            <input type="file" id="fileInput0">
+        </label>
+        <label>
+            <span>1s:</span>
+            <input type="file" id="fileInput1">
+        </label>
+        <label>
+            <span>2s:</span>
+            <input type="file" id="fileInput2">
+        </label>
+        <label>
+            <span>3s:</span>
+            <input type="file" id="fileInput3">
+        </label>
+        <label>
+            <span>4s:</span>
+            <input type="file" id="fileInput4">
+        </label>
+        <label>
+            <span>5s:</span>
+            <input type="file" id="fileInput5">
+        </label>
+        <label>
+            <span>6s:</span>
+            <input type="file" id="fileInput6">
+        </label>
+        <label>
+            <span>7s:</span>
+            <input type="file" id="fileInput7">
+        </label>
+        <label>
+            <span>8s:</span>
+            <input type="file" id="fileInput8">
+        </label>
+        <label>
+            <span>9s:</span>
+            <input type="file" id="fileInput9">
         </label>
     </div>
     <div>
-        <label>
-            <input id="rdoText" type="radio" name="format" value="text" checked>
-            Text
-        </label>
-        <label>
-            <input id="rdoBinary" type="radio" name="format" value="binary">
-            Binary
-        </label>
+        <input id="btnRead" type="button" value="Read Files">
     </div>
-    <div>
-        <input id="btnRead" type="button" value="Read File">
-    </div>
+    <canvas id = "test" width = "56" height = "56">Broken</canvas><p id = "outputs"></p>
 </form>
+<button onclick="generateImgs()">Gen</button>
+<button onclick="displayRandom()">Test</button>
+<button onclick="trainAi()">Train</button>
 </body>
 <script src = "script.js"></script>
