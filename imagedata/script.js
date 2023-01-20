@@ -229,7 +229,15 @@ function displayRandom(){
             ctx.strokeRect(k * 2, j * 2, 2, 2);
         }
     }
-    $("outputs").innerHTML = ai.feedForward(trainingDataGlobal[x][0])[0] + "<br>" + maxIndex(ai.feedForward(trainingDataGlobal[x][0])[0]);
+    $("outputs").innerHTML = roundArray(ai.feedForward(trainingDataGlobal[x][0])[0]) + "<br>" + maxIndex(ai.feedForward(trainingDataGlobal[x][0])[0]);
+}
+
+function roundArray(arr){
+    let out = new Array(arr);
+    for(let i = 0; i < arr.length; i++){
+        out[i] = Math.round(arr[i] * 1000) / 1000;
+    }
+    return out;
 }
 
 function maxIndex(arr){
